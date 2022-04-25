@@ -115,8 +115,21 @@ def get_apod_info(date):
 
     :param date: APOD date formatted as YYYY-MM-DD
     :returns: Dictionary of APOD info
-    """    
-    return {"todo" : "TODO"}
+    """ 
+    print("Retrieving APOD Data...", end='')
+       
+    URL = 'https://api.nasa.gov/planetary/apod' + date
+   
+    response = requests.get(URL)
+
+    if response.status_code == 200:
+        print("Success")
+        return response.json()
+
+    else:
+        print('failed. Response code:', response.status_code)
+        return   
+    
 
 def print_apod_info(image_url, image_path, image_size, image_sha256):
     """
