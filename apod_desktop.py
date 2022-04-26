@@ -170,7 +170,21 @@ def create_image_db(db_path):
     :param db_path: Path of .db file
     :returns: None
     """
-    return #TODO
+    myConnection = sqlite3.connect('apod_images.db')
+    myCursor = myConnection.cursor()
+    create_APOD_table = """ CREATE TABLE IF NOT EXISTS images (
+                          id integer PRIMARY KEY,
+                          image_path text NOT NULL,
+                          image_size text NOT NULL,
+                          image_sha256 text NOT NULL,
+                          downloaded_at datetime NOT NULL
+                        );"""
+    myCursor.execute(create_APOD_table)
+
+    myConnection.commit()
+    myConnection.close()
+
+    
 
 def add_image_to_db(db_path, image_path, image_size, image_sha256):
     """
@@ -182,6 +196,21 @@ def add_image_to_db(db_path, image_path, image_size, image_sha256):
     :param image_sha256: SHA-256 of image
     :returns: None
     """
+    myConnection = sqlite3.connect('apod_images.db')
+    myCursor = myConnection.cursor()
+    add_image_query = """INSERT INTO images (image_path, 
+                      image_size, 
+                      image_sha256, 
+                      downloaded_at, 
+                  VALUES (?, ?, ?, ? );"""
+
+    my_image = (image_path, image_size, image_sha256, datetime.now())
+
+    myCursor.execute(add_image_query, my_image)
+
+    myConnection.commit()
+    myConnection.close()
+
     return #TODO
 
 def image_already_in_db(db_path, image_sha256):
