@@ -20,6 +20,7 @@ from sys import argv, exit
 from datetime import datetime, date
 from hashlib import sha256
 from os import path
+import os
 import sqlite3
 import requests
 
@@ -41,13 +42,13 @@ def main():
     # Download today's APOD
     image_url = apod_info_dict['url']
     image_msg = download_apod_image(image_url)
-    image_sha256 = "TODO"
-    image_size = -1 # TODO
+    image_sha256 = sha256(image_msg).hexdigest()
+    image_size = len(image_msg)
     image_path = get_image_path(image_url, image_dir_path)
     
     # Print APOD image information
     print_apod_info(image_url, image_path, image_size, image_sha256)
-
+    pass
     # Add image to cache if not already present
     if not image_already_in_db(db_path, image_sha256):
         save_image_file(image_msg, image_path)
@@ -104,10 +105,11 @@ def get_image_path(image_url, dir_path):
     Determines the path at which an image downloaded from
     a specified URL is saved locally.
 
-    :param image_url: URL of image
+    :param apod_info_dict: Dictionary containing metadata for the image
     :param dir_path: Path of directory in which image is saved locally
     :returns: Path at which image is saved locally
     """
+    
     return "TODO"
 
 def get_apod_info(date):
@@ -138,8 +140,7 @@ def get_apod_info(date):
         print('failed. Response code:', response.status_code)
         return   
     
-
-#def print_apod_info(image_url, image_path, image_size, image_sha256):
+def print_apod_info(image_url, image_path, image_size, image_sha256):
     """
     Prints information about the APOD
 
@@ -151,7 +152,7 @@ def get_apod_info(date):
     """    
     print('Image URL: ', image_url)
     print('Image Path: ', image_path)
-    print('Image Size: ', image_size + 'B')
+    print('Image Size: ', str(image_size), 'bytes')
     print('Image Hash: ', image_sha256)
 
 def download_apod_image(image_url):
@@ -161,6 +162,7 @@ def download_apod_image(image_url):
     :param image_url: URL of image
     :returns: Response message that contains image data
     """
+    print("Retrieving Image Data...", end='')
     image_data = requests.get(image_url)
 
     if image_data.status_code == 200:
@@ -172,11 +174,6 @@ def download_apod_image(image_url):
         print('failed. Response code:', image_data.status_code)
         return   
 
-#def get_image_hash(image_msg):
-    """
-
-    """
-    return
 
 def save_image_file(image_msg, image_path):
     """
@@ -209,8 +206,7 @@ def create_image_db(db_path):
 
     myConnection.commit()
     myConnection.close()
-
-    
+   
 def add_image_to_db(db_path, image_path, image_size, image_sha256):
     """
     Adds a specified APOD image to the DB.
