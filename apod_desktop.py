@@ -20,6 +20,8 @@ from sys import argv, exit
 from datetime import datetime, date
 from hashlib import sha256
 from os import path
+import sqlite3
+import requests
 
 def main():
 
@@ -37,12 +39,12 @@ def main():
     apod_info_dict = get_apod_info(apod_date)
     
     # Download today's APOD
-    image_url = "TODO"
+    image_url = apod_info_dict['url']
     image_msg = download_apod_image(image_url)
     image_sha256 = "TODO"
     image_size = -1 # TODO
     image_path = get_image_path(image_url, image_dir_path)
-
+    
     # Print APOD image information
     print_apod_info(image_url, image_path, image_size, image_sha256)
 
@@ -116,11 +118,17 @@ def get_apod_info(date):
     :param date: APOD date formatted as YYYY-MM-DD
     :returns: Dictionary of APOD info
     """ 
+    api_key = '79bUBvryLhNhbVOMkA3gvy4NbR50Dz2hfh5VdFR2'
+
     print("Retrieving APOD Data...", end='')
        
-    URL = 'https://api.nasa.gov/planetary/apod' + date
+    URL = 'https://api.nasa.gov/planetary/apod'
+    params = {
+        'api_key': api_key,
+        'date': date
+    }
    
-    response = requests.get(URL)
+    response = requests.get(URL, params=params)
 
     if response.status_code == 200:
         print("Success")
@@ -131,7 +139,7 @@ def get_apod_info(date):
         return   
     
 
-def print_apod_info(image_url, image_path, image_size, image_sha256):
+#def print_apod_info(image_url, image_path, image_size, image_sha256):
     """
     Prints information about the APOD
 
@@ -141,7 +149,10 @@ def print_apod_info(image_url, image_path, image_size, image_sha256):
     :param image_sha256: SHA-256 of image
     :returns: None
     """    
-    return #TODO
+    print('Image URL: ', image_url)
+    print('Image Path: ', image_path)
+    print('Image Size: ', image_size + 'B')
+    print('Image Hash: ', image_sha256)
 
 def download_apod_image(image_url):
     """
@@ -150,7 +161,22 @@ def download_apod_image(image_url):
     :param image_url: URL of image
     :returns: Response message that contains image data
     """
-    return "TODO"
+    image_data = requests.get(image_url)
+
+    if image_data.status_code == 200:
+        print("Success")
+        image_msg = image_data.content
+        return image_msg
+
+    else:
+        print('failed. Response code:', image_data.status_code)
+        return   
+
+#def get_image_hash(image_msg):
+    """
+
+    """
+    return
 
 def save_image_file(image_msg, image_path):
     """
@@ -170,7 +196,7 @@ def create_image_db(db_path):
     :param db_path: Path of .db file
     :returns: None
     """
-    myConnection = sqlite3.connect('apod_images.db')
+    myConnection = sqlite3.connect(db_path)
     myCursor = myConnection.cursor()
     create_APOD_table = """ CREATE TABLE IF NOT EXISTS images (
                           id integer PRIMARY KEY,
@@ -185,7 +211,6 @@ def create_image_db(db_path):
     myConnection.close()
 
     
-
 def add_image_to_db(db_path, image_path, image_size, image_sha256):
     """
     Adds a specified APOD image to the DB.
@@ -196,7 +221,7 @@ def add_image_to_db(db_path, image_path, image_size, image_sha256):
     :param image_sha256: SHA-256 of image
     :returns: None
     """
-    myConnection = sqlite3.connect('apod_images.db')
+    myConnection = sqlite3.connect(db_path)
     myCursor = myConnection.cursor()
     add_image_query = """INSERT INTO images (image_path, 
                       image_size, 
