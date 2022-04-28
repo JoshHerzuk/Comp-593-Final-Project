@@ -23,6 +23,8 @@ from os import path
 import os
 import sqlite3
 import requests
+import re
+import ctypes
 
 def main():
 
@@ -48,7 +50,7 @@ def main():
     
     # Print APOD image information
     print_apod_info(image_url, image_path, image_size, image_sha256)
-    pass
+    
     # Add image to cache if not already present
     if not image_already_in_db(db_path, image_sha256):
         save_image_file(image_msg, image_path)
@@ -109,8 +111,13 @@ def get_image_path(image_url, dir_path):
     :param dir_path: Path of directory in which image is saved locally
     :returns: Path at which image is saved locally
     """
-    
-    return "TODO"
+    url_search = re.search(r".*/(.*)", image_url)
+
+    image_name = url_search.group(1)
+
+    image_path = os.path.join(dir_path, image_name)
+
+    return image_path
 
 def get_apod_info(date):
     """
@@ -184,7 +191,11 @@ def save_image_file(image_msg, image_path):
     :param image_path: Path to save image file
     :returns: None
     """
-    return #TODO
+    print("Saving image to database...", end="")
+    
+    with open(image_path, 'wb') as file:
+        file.write(image_msg)
+        print("Success")
 
 def create_image_db(db_path):
     """
@@ -199,7 +210,7 @@ def create_image_db(db_path):
                           id integer PRIMARY KEY,
                           image_path text NOT NULL,
                           image_size text NOT NULL,
-                          image_sha256 text NOT NULL,
+                          hash text NOT NULL,
                           downloaded_at datetime NOT NULL
                         );"""
     myCursor.execute(create_APOD_table)
@@ -221,7 +232,7 @@ def add_image_to_db(db_path, image_path, image_size, image_sha256):
     myCursor = myConnection.cursor()
     add_image_query = """INSERT INTO images (image_path, 
                       image_size, 
-                      image_sha256, 
+                      hash, 
                       downloaded_at, 
                   VALUES (?, ?, ?, ? );"""
 
@@ -232,7 +243,6 @@ def add_image_to_db(db_path, image_path, image_size, image_sha256):
     myConnection.commit()
     myConnection.close()
 
-    return #TODO
 
 def image_already_in_db(db_path, image_sha256):
     """
@@ -243,7 +253,24 @@ def image_already_in_db(db_path, image_sha256):
     :param image_sha256: SHA-256 of image
     :returns: True if image is already in DB; False otherwise
     """ 
-    return True #TODO
+    print("Searching for image in database...", end = "")
+    my_connection = sqlite3.connect(db_path)
+    my_cursor = my_connection.cursor()
+    args = (image_sha256)
+    hash_search ="""SELECT id FROM images WHERE hash = ?"""
+
+    my_cursor.execute(hash_search, args)
+    results = my_cursor.fetchall()
+    my_connection.close()
+
+    if len(results) < 1:
+        print("Image not found.")
+        return False
+
+    else:
+        print("Image found")
+        return True
+
 
 def set_desktop_background_image(image_path):
     """
@@ -252,6 +279,6 @@ def set_desktop_background_image(image_path):
     :param image_path: Path of image file
     :returns: None
     """
-    return #TODO
+    ctypes.windll.user32.SystemParametersInfoW(20, 0, image_path, 0)
 
 main()
