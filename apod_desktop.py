@@ -15,6 +15,8 @@ Parameters:
 History:
   Date        Author    Description
   2022-03-11  J.Dalby   Initial creation
+  2022-04-27  J.Herzuk  Finished Script
+
 """
 from sys import argv, exit
 from datetime import datetime, date
@@ -55,7 +57,7 @@ def main():
     if not image_already_in_db(db_path, image_sha256):
         save_image_file(image_msg, image_path)
         add_image_to_db(db_path, image_path, image_size, image_sha256)
-    pass
+    
     # Set the desktop background image to the selected APOD
     set_desktop_background_image(image_path)
 
@@ -181,7 +183,6 @@ def download_apod_image(image_url):
         print('failed. Response code:', image_data.status_code)
         return   
 
-
 def save_image_file(image_msg, image_path):
     """
     Extracts an image file from an HTTP response message
@@ -204,6 +205,7 @@ def create_image_db(db_path):
     :param db_path: Path of .db file
     :returns: None
     """
+    print("Creating image database...", end="")
     myConnection = sqlite3.connect(db_path)
     myCursor = myConnection.cursor()
     create_APOD_table = """ CREATE TABLE IF NOT EXISTS images (
@@ -217,6 +219,8 @@ def create_image_db(db_path):
 
     myConnection.commit()
     myConnection.close()
+
+    print("Success")
    
 def add_image_to_db(db_path, image_path, image_size, image_sha256):
     """
@@ -242,7 +246,6 @@ def add_image_to_db(db_path, image_path, image_size, image_sha256):
 
     myConnection.commit()
     myConnection.close()
-
 
 def image_already_in_db(db_path, image_sha256):
     """
@@ -272,7 +275,6 @@ def image_already_in_db(db_path, image_sha256):
         print("Image found")
         return True
 
-
 def set_desktop_background_image(image_path):
     """
     Changes the desktop wallpaper to a specific image.
@@ -280,6 +282,8 @@ def set_desktop_background_image(image_path):
     :param image_path: Path of image file
     :returns: None
     """
+    print("Setting image as desktop background...", end="")
     ctypes.windll.user32.SystemParametersInfoW(20, 0, image_path, 0)
+    print("Success")
 
 main()

@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "args": ["C:\\users\\Joshua\\Pictures"],
+            "args": ["C:\\users\\Joshua\\Pictures", "2020-01-17"],
             "justMyCode": true
         }
     ]
