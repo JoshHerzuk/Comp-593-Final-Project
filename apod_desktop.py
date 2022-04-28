@@ -69,6 +69,7 @@ def get_image_dir_path():
     :returns: Path of directory in which images are saved locally
     """
     if len(argv) >= 2:
+        #gets the directory path from the parameter
         dir_path = argv[1]
         if path.isdir(dir_path):
             print("Images directory:", dir_path)
@@ -113,10 +114,11 @@ def get_image_path(image_url, dir_path):
     :param dir_path: Path of directory in which image is saved locally
     :returns: Path at which image is saved locally
     """
+    #uses regex to extract the image name from the url
     url_search = re.search(r".*/(.*)", image_url)
 
     image_name = url_search.group(1)
-
+    #joins the directory path with the image name to create the image path
     image_path = os.path.join(dir_path, image_name)
 
     return image_path
@@ -129,6 +131,7 @@ def get_apod_info(date):
     :param date: APOD date formatted as YYYY-MM-DD
     :returns: Dictionary of APOD info
     """ 
+    #my NASA APOD api key
     api_key = '79bUBvryLhNhbVOMkA3gvy4NbR50Dz2hfh5VdFR2'
 
     print("Retrieving APOD Data...", end='')
@@ -138,11 +141,11 @@ def get_apod_info(date):
         'api_key': api_key,
         'date': date
     }
-   
+    #queries the API for the image info
     response = requests.get(URL, params=params)
 
     if response.status_code == 200:
-        print("Success")
+        print("Success.")
         return response.json()
 
     else:
@@ -158,7 +161,8 @@ def print_apod_info(image_url, image_path, image_size, image_sha256):
     :param image_size: Size of image in bytes
     :param image_sha256: SHA-256 of image
     :returns: None
-    """    
+    """  
+    #prints out the relevant information about the APOD  
     print('Image URL: ', image_url)
     print('Image Path: ', image_path)
     print('Image Size: ', str(image_size), 'bytes')
@@ -172,10 +176,10 @@ def download_apod_image(image_url):
     :returns: Response message that contains image data
     """
     print("Retrieving Image Data...", end='')
+    #Queries the image url to retrive the response content
     image_data = requests.get(image_url)
-
     if image_data.status_code == 200:
-        print("Success")
+        print("Success.")
         image_msg = image_data.content
         return image_msg
 
@@ -192,11 +196,11 @@ def save_image_file(image_msg, image_path):
     :param image_path: Path to save image file
     :returns: None
     """
-    print("Saving image to database...", end="")
-    
+    print("Saving image to disk...", end="")
+    #saves the content of image_msg to the hardrive at image_path
     with open(image_path, 'wb') as file:
         file.write(image_msg)
-        print("Success")
+        print("Success.")
 
 def create_image_db(db_path):
     """
@@ -206,6 +210,7 @@ def create_image_db(db_path):
     :returns: None
     """
     print("Creating image database...", end="")
+    #creates the images database if it doesn't already exit
     myConnection = sqlite3.connect(db_path)
     myCursor = myConnection.cursor()
     create_APOD_table = """ CREATE TABLE IF NOT EXISTS images (
@@ -220,7 +225,7 @@ def create_image_db(db_path):
     myConnection.commit()
     myConnection.close()
 
-    print("Success")
+    print("Success.")
    
 def add_image_to_db(db_path, image_path, image_size, image_sha256):
     """
@@ -232,6 +237,8 @@ def add_image_to_db(db_path, image_path, image_size, image_sha256):
     :param image_sha256: SHA-256 of image
     :returns: None
     """
+    print("Adding image to database...", end="")
+    #adds the saved image to the database
     myConnection = sqlite3.connect(db_path)
     myCursor = myConnection.cursor()
     add_image_query = """INSERT INTO images (image_path, 
@@ -246,6 +253,8 @@ def add_image_to_db(db_path, image_path, image_size, image_sha256):
 
     myConnection.commit()
     myConnection.close()
+
+    print("Success.")
 
 def image_already_in_db(db_path, image_sha256):
     """
@@ -272,7 +281,7 @@ def image_already_in_db(db_path, image_sha256):
         return False
 
     else:
-        print("Image found")
+        print("Image found.")
         return True
 
 def set_desktop_background_image(image_path):
@@ -284,6 +293,6 @@ def set_desktop_background_image(image_path):
     """
     print("Setting image as desktop background...", end="")
     ctypes.windll.user32.SystemParametersInfoW(20, 0, image_path, 0)
-    print("Success")
+    print("Success.")
 
 main()

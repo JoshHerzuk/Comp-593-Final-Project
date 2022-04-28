@@ -1,0 +1,28 @@
+COMP-593 final assignment Worklog
+
+2022-04-24-	created get_apod_info function. Used this link: https://medium.com/daily-python/consuming-nasa-api-using-python-part-1-daily-python-17-4ce104fa47ab to learn how to query the API.
+
+2022-04-26 -  	created the create _image_db and add_image_to_db functions. 
+
+-	Used the techniques from lab 3 to remind myself how to work with databases. This took me about 1 hour.
+
+
+-	Devised how to calculate the sha256 hash of the image. This link helped https://stackoverflow.com/questions/48613002/sha-256-hashing-in-python
+
+-	Finished print_apod_info function this one was pretty simple.
+
+-	Reading the discussion board I figured out how to download the image data from the apod api and finished the download_apod_image function. Took me about 2 hours of trial to finish
+
+2022-04-27 - 	worked on get_image_path function used regex to extract the image name from the url. It worked! Looked back at scripts from last semester to refresh my memory on working with regex.
+
+-	Worked on the image_already_in_db function. Had to find a way to get the image hash into the query, found I needed a parameterized query. This link https://stackoverflow.com/questions/45343175/python-3-sqlite-parameterized-sql-query gave me the info I needed. Took me about 1 hour to figure out.
+
+-	Finished the save_image_file function. This one was pretty simple took me about 20 min. process was very similar to what we did in lab9.
+ 
+-	Created the set_desktop_background_image function was able to copy the code from lab 9.
+
+-	Found an error with my image_already_in_db function, it gave the error “Incorrect number of bindings supplied”. Found this link: https://stackoverflow.com/questions/16856647/sqlite3-programmingerror-incorrect-number-of-bindings-supplied-the-current-sta gave me the way to fix it. Turns out I just needed [] around the args variable so it was read as one item not 64.
+
+
+
+
