@@ -55,7 +55,7 @@ def main():
     if not image_already_in_db(db_path, image_sha256):
         save_image_file(image_msg, image_path)
         add_image_to_db(db_path, image_path, image_size, image_sha256)
-
+    pass
     # Set the desktop background image to the selected APOD
     set_desktop_background_image(image_path)
 
@@ -233,8 +233,8 @@ def add_image_to_db(db_path, image_path, image_size, image_sha256):
     add_image_query = """INSERT INTO images (image_path, 
                       image_size, 
                       hash, 
-                      downloaded_at, 
-                  VALUES (?, ?, ?, ? );"""
+                      downloaded_at) 
+                    VALUES (?, ?, ?, ?);"""
 
     my_image = (image_path, image_size, image_sha256, datetime.now())
 
@@ -256,10 +256,11 @@ def image_already_in_db(db_path, image_sha256):
     print("Searching for image in database...", end = "")
     my_connection = sqlite3.connect(db_path)
     my_cursor = my_connection.cursor()
+
     args = (image_sha256)
     hash_search ="""SELECT id FROM images WHERE hash = ?"""
 
-    my_cursor.execute(hash_search, args)
+    my_cursor.execute(hash_search, [args])
     results = my_cursor.fetchall()
     my_connection.close()
 
